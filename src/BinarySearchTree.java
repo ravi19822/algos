@@ -35,12 +35,12 @@ public class BinarySearchTree {
             return root;
         }
 
-        /* Otherwise, recur down the tree */
-        if (key < root.key) {
-
-            root.left = insertRec(root.left, key);
-        } else if (key > root.key)
-            root.right = insertRec(root.right, key);
+//        /* Otherwise, recur down the tree */
+//        if (key < root.key) {
+//
+//            root.left = insertRec(root.left, key);
+//        } else if (key > root.key)
+//            root.right = insertRec(root.right, key);
 
         /* return the (unchanged) node pointer */
         return root;
