@@ -1,0 +1,208 @@
+=========Python codes======
+1. uniqueEmails
+2. Design autocomplete
+
+
+class Solution:
+    def numUniqueEmails(self, emails: List[str]) -> int:
+        # Hash set to store all the unique emails.
+        uniqueEmails = set()
+
+        # Iterate over each character in email.
+        for email in emails:
+            cleanMail = []
+
+            # Iterate over each character in email.
+            for currChar in email:
+                # Stop adding characters to localName.
+                if currChar == '+' or currChar == '@':
+                    break
+
+                # Add this character if not '.'.
+                if currChar != '.':
+                    cleanMail.append(currChar)
+
+            # Compute domain name (substring from end to '@').
+            domainName = []
+            for currChar in reversed(email):
+                domainName.append(currChar)
+                if currChar == '@':
+                    break
+
+            # Reverse domain name and append to local name.
+            domainName = ''.join(domainName[::-1])
+            cleanMail = ''.join(cleanMail)
+            uniqueEmails.add(cleanMail + domainName)
+
+        return len(uniqueEmails)
+
+
+
+
+
+
+
+
+
+_trie = lambda: collections.defaultdict(_trie)
+INFO, END = True, False
+
+class ShortList(list):
+    def append(self, val):
+        for i, (nt, s) in enumerate(self):
+            if s == val[1]:
+                self[i] = val
+                break
+        else:
+            list.append(self, val)
+
+        self.sort()
+        if len(self) > 3:
+            self.pop()
+
+class AutocompleteSystem(object):
+
+    def __init__(self, sentences, counts):
+        self.curnode = self.trie = _trie()
+        self.sentence_to_count = collections.Counter()
+        self.search = ''
+
+        for sentence, count in zip(sentences, counts):
+            self.add(sentence, count)
+
+    def add(self, sentence, count):
+        self.sentence_to_count[sentence] = count
+        cur = self.trie
+        self._add_info(cur, sentence, count)
+        for letter in sentence:
+            cur = cur[letter]
+            self._add_info(cur, sentence, count)
+        cur[END] = sentence
+
+    def _add_info(self, node, sentence, count):
+        if INFO not in node:
+            node[INFO] = ShortList()
+        node[INFO].append((-count, sentence))
+
+    def input(self, c):
+        if c != '#':
+            self.search += c
+            if self.curnode is None:
+                return []
+            if c not in self.curnode:
+                self.curnode = None
+                return []
+
+            self.curnode = self.curnode[c]
+            return [s for nt, s in self.curnode[INFO]]
+        else:
+            self.sentence_to_count[self.search] += 1
+            self.add(self.search, self.sentence_to_count[self.search])
+            self.search = ''
+            self.curnode = self.trie
+            return []
+
+
+
+
+
+  ===========Java solutions===========
+  class AutocompleteSystem {
+    Map<String,Integer> map;
+    TrieNode root;
+    TrieNode curr;
+    StringBuilder sb;
+    public AutocompleteSystem(String[] sentences, int[] times) {
+        map = new HashMap<>();
+        sb = new StringBuilder();
+        root = new TrieNode();
+        curr = root;
+        //populate map and build trie
+        for(int i=0;i<times.length;i++){
+            map.put(sentences[i],times[i]);
+            root.add(sentences[i],0);
+        }
+    }
+
+    public List<String> input(char c) {
+        if(c=='#'){
+            String newSentence = sb.toString();
+            map.put(newSentence,map.getOrDefault(newSentence,0)+1);
+            root.add(newSentence,0);
+            curr=root;
+            sb = new StringBuilder();
+            return new ArrayList<>();
+        }
+        sb.append(c);
+        curr=curr.getNextNode(c);
+        return curr.topWords;
+    }
+
+    class TrieNode{
+        List<String> topWords;
+        TrieNode[] next;
+
+        TrieNode(){
+            topWords = new ArrayList<>();
+            next=  new TrieNode[27];
+        }
+
+        public void add(String s,int start){
+            if(!topWords.contains(s))
+                topWords.add(s);
+            Collections.sort(topWords,(o1,o2)->map.get(o1)==map.get(o2)?o1.compareTo(o2):map.get(o2)-map.get(o1));
+            if(topWords.size()>3)
+                topWords.remove(topWords.size()-1);
+            if(start == s.length())
+                return;
+            getNextNode(s.charAt(start)).add(s,start+1);
+        }
+
+        public TrieNode getNextNode(char ch){
+            int index = ch==' '?26: ch-'a';
+            if(next[index]==null)
+                next[index] = new TrieNode();
+            return next[index];
+        }
+    }
+}
+
+/**
+ * Your AutocompleteSystem object will be instantiated and called as such:
+ * AutocompleteSystem obj = new AutocompleteSystem(sentences, times);
+ * List<String> param_1 = obj.input(c);
+ */
+
+ ==========UniqueEmails=========
+
+
+
+ class Solution {
+    public int numUniqueEmails(String[] emails) {
+        Set<String>uniqueEmails = new HashSet<>();
+        for(String email:emails){
+               int indexOfDot= email.indexOf('.');
+               int indexOfPlus = email.indexOf('+');
+                int indexOfAt = email.indexOf('@');
+              if(indexOfDot==-1 && indexOfPlus==-1)
+                uniqueEmails.add(email);
+              else{
+                  StringBuilder cleanMail = new StringBuilder();
+                  int i;
+                  for(i=0;i<indexOfAt;i++){
+                      char currChar = email.charAt(i);
+                      if(currChar=='+'){
+                           uniqueEmails.add(cleanMail.toString()+email.substring(indexOfAt));
+                           break;
+                      }
+                      else if(currChar!='.')
+                          cleanMail.append(currChar);
+
+                  }
+                  if(i==indexOfAt)
+                    uniqueEmails.add(cleanMail.toString()+email.substring(indexOfAt));
+              }
+            }
+        return uniqueEmails.size();
+        }
+    }
